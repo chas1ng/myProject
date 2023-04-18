@@ -4,8 +4,8 @@ import numpy as np
 
 
 class RBF_Cell_torch(nn.Module):
-    def __int__(self, hidden_nums, features):
-        super(self, RBF_Cell_torch).__init__()
+    def __init__(self, hidden_nums, features):
+        super(RBF_Cell_torch, self).__init__()
         self.n_samples = 0  # 训练集样本数量, 每次训练时重新修正
         self.n_features = features  # 训练集特征数量, input_size
         self.h = hidden_nums  # 隐含层神经元个数
@@ -42,3 +42,7 @@ class RBF_Cell_torch(nn.Module):
         yi_output = self.addIntercept(hi_output)
         yi_output = torch.mm(yi_output, self.w)
         return yi_output
+
+
+if __name__ == "__main__":
+    net = RBF_Cell_torch(50, 1)
