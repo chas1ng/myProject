@@ -14,7 +14,7 @@ class RBF_Cell_torch(nn.Module):
         self.sigma = nn.Parameter(torch.randn(self.h, 1), requires_grad=True)  # 高斯核宽
         self.base = nn.Parameter(torch.randn(1), requires_grad=True)
 
-    # 计算径向基距离函数,单个核（hiddens_size）
+    # 计算径向基距离函数,单个核（hidden_size）
     def guass(self, sigma, X, ci):
         return torch.exp(-torch.norm((X - ci), dim=1) ** 2 / (2 * sigma ** 2))
 
