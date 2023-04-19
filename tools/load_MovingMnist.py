@@ -1,6 +1,7 @@
 import numpy as np
 from torch.utils.data import Dataset
 import torch
+# data_shape is (20, 10000, 64, 64) -> (10000, 20, 64, 64)
 
 
 def MNISTdataLoader(path):
@@ -19,8 +20,8 @@ class MovingMNISTdataset(Dataset):
     def __len__(self):
         return len(self.data[:, 0, 0, 0])
 
-    def __getitem__(self, indx):
-        self.trainsample_ = self.data[indx, ...]
+    def __getitem__(self, index):
+        self.trainsample_ = self.data[index, ...]
         # self.sample_ = self.trainsample_/255.0   # normalize
         self.sample_ = self.trainsample_
         self.sample = torch.from_numpy(np.expand_dims(self.sample_, axis=1)).float()
@@ -28,5 +29,5 @@ class MovingMNISTdataset(Dataset):
 
 
 if __name__ == '__main__':
-    mnistdata = MovingMNISTdataset("./mnist_test_seq.npy")
+    mnistdata = MovingMNISTdataset("..\\Datasets\\MovingMinst\\mnist_test_seq.npy")
     print(mnistdata.__getitem__(0).shape)
