@@ -1,13 +1,29 @@
 import numpy as np
 from torch.utils.data import Dataset
 import torch
+import tools.draw as dw
+
+
 # data_shape is (20, 10000, 64, 64) -> (10000, 20, 64, 64)
+
+
+def pick_data(path):
+    all_data = np.load(path)
+    print(all_data.shape)
+    train_data = all_data[:, 0:8000, :, :]
+    test_data = all_data[:, 8000:9000, :, :]
+    validation_data = all_data[:, 9000:10000, :, :]
+    np.save('..\\Datasets\\MovingMinst\\mnist_train.npy', train_data)
+    np.save('..\\Datasets\\MovingMinst\\mnist_test.npy', test_data)
+    np.save('..\\Datasets\\MovingMinst\\mnist_validation.npy', validation_data)
+    return 0
 
 
 def MNISTdataLoader(path):
     # load moving mnist data, data shape = [time steps, batch size, width, height] = [20, batch_size, 64, 64]
     # B S H W -> S B H W
     data = np.load(path)
+
     data_trans = data.transpose(1, 0, 2, 3)
     return data_trans
 
@@ -29,5 +45,11 @@ class MovingMNISTdataset(Dataset):
 
 
 if __name__ == '__main__':
-    mnistdata = MovingMNISTdataset("..\\Datasets\\MovingMinst\\mnist_test_seq.npy")
-    print(mnistdata.__getitem__(0).shape)
+    mnistdata = MovingMNISTdataset("..\\Datasets\\MovingMinst\\mnist_train.npy")
+    for i, data in enumerate(mnistdata):
+        for j in range(len(data)):
+            ones = data[j][0]
+            dw.picture(ones)
+
+        if i > 20:
+            break

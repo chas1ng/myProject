@@ -15,3 +15,7 @@ def draw(inputs):
     plt.show()
 
 
+def picture(inputs):
+    plt.imshow(inputs)
+    plt.show()
+

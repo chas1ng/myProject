@@ -19,27 +19,26 @@ class ConvLSTMCell(nn.Module):
                               padding=self.padding,
                               bias=self.bias)
 
-        def forward(self, input_tensor, cur_state):
-            h_cur, c_cur = cur_state
+    def forward(self, input_tensor, cur_state):
+        h_cur, c_cur = cur_state
+        combined = torch.cat([input_tensor, h_cur], dim=1)  # concatenate along channel axis
 
-            combined = torch.cat([input_tensor, h_cur], dim=1)  # concatenate along channel axis
+        combined_conv = self.conv(combined)
+        cc_i, cc_f, cc_o, cc_g = torch.split(combined_conv, self.hidden_dim, dim=1)
+        i = torch.sigmoid(cc_i)
+        f = torch.sigmoid(cc_f)
+        o = torch.sigmoid(cc_o)
+        g = torch.tanh(cc_g)
 
-            combined_conv = self.conv(combined)
-            cc_i, cc_f, cc_o, cc_g = torch.split(combined_conv, self.hidden_dim, dim=1)
-            i = torch.sigmoid(cc_i)
-            f = torch.sigmoid(cc_f)
-            o = torch.sigmoid(cc_o)
-            g = torch.tanh(cc_g)
+        c_next = f * c_cur + i * g
+        h_next = o * torch.tanh(c_next)
 
-            c_next = f * c_cur + i * g
-            h_next = o * torch.tanh(c_next)
+        return h_next, c_next
 
-            return h_next, c_next
-
-        def init_hidden(self, batch_size, image_size):
-            height, width = image_size
-            return (torch.zeros(batch_size, self.hidden_dim, height, width, device=self.conv.weight.device),
-                    torch.zeros(batch_size, self.hidden_dim, height, width, device=self.conv.weight.device))
+    def init_hidden(self, batch_size, image_size):
+        height, width = image_size
+        return (torch.zeros(batch_size, self.hidden_dim, height, width, device=self.conv.weight.device),
+                torch.zeros(batch_size, self.hidden_dim, height, width, device=self.conv.weight.device))
 
 
 class ConvLSTM(nn.Module):
@@ -76,7 +75,6 @@ class ConvLSTM(nn.Module):
         if not self.batch_first:
             # (t, b, c, h, w) -> (b, t, c, h, w)
             input_tensor = input_tensor.permute(1, 0, 2, 3, 4)
-
         b, _, _, h, w = input_tensor.size()
 
         # Implement stateful ConvLSTM
@@ -106,12 +104,13 @@ class ConvLSTM(nn.Module):
 
             layer_output_list.append(layer_output)
             last_state_list.append([h, c])
-
+            # print(layer_output.size())
         if not self.return_all_layers:
             layer_output_list = layer_output_list[-1:]
             last_state_list = last_state_list[-1:]
 
-        return layer_output_list, last_state_list
+        # return layer_output_list, last_state_list
+        return layer_output
 
     def _init_hidden(self, batch_size, image_size):
         init_states = []
